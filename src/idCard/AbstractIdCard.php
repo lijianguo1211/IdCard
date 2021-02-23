@@ -64,11 +64,17 @@ abstract class AbstractIdCard
      */
     protected $year;
 
+    protected $cardData;
+
+    const FIRST_YEAR = 1980;
+
     const ARGS = [0 => 1, 1 => 0, 2 => "X", 3 => 9, 4 => 8, 5 => 7, 6 => 6, 7 => 5, 8 => 4, 9 => 3, 10 => 2];
 
     const POSITION = [1 => 1, 2 => 2, 3 => 4, 4 => 8, 5 => 5, 6 => 10, 7 => 9, 8 => 7, 9 => 3, 10 => 6, 11 => 1, 12 => 2, 13 => 4, 14 => 8, 15 => 5, 16 => 10, 17 => 9, 18 => 7];
 
     const ZODIAC = [4 => '子鼠', 5 => '丑牛', 6 => '寅虎', 7 => '卯兔', 8 => '辰龙', 9 => '巳蛇', 10 => '午马', 11 => '未羊', 0 => '申猴', 1 => '酉鸡', 2 => '戌狗', 3 => '亥猪'];
+
+    const MUNICIPALITY = [110000 => 110000, 120000 => 120000, 310000 => 310000, 500000 => 500000];
 
     public function __construct(?string $idCard = null)
     {
@@ -77,13 +83,15 @@ abstract class AbstractIdCard
         self::$pointer = 0;
 
         $this->register();
+
+        $this->initConfig((int)date('Y'));
     }
 
-    protected function initConfig(int $year)
+    protected function initConfig(int $year):self
     {
         $path = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'config/' . $year . DIRECTORY_SEPARATOR . 'config.json';
 
-        if ($year <= 1980) {
+        if ($year <= self::FIRST_YEAR) {
             $path = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'config/1980' . DIRECTORY_SEPARATOR . 'config.json';
         }
 
@@ -93,7 +101,9 @@ abstract class AbstractIdCard
         }
 
 
-        return json_decode(file_get_contents($path), true);
+        $this->cardData = json_decode(file_get_contents($path), true);
+
+        return $this;
     }
 
     protected function register()

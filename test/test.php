@@ -13,7 +13,7 @@ use JayAddress\IdentityCard;
 
 //$obj = new IdentityCard();
 
-$idCard = '429329199512011720';
+$idCard = '140211199512011726';
 
 
 
@@ -21,7 +21,7 @@ $idCard = '429329199512011720';
 //var_dump(Card::getLength($idCard));
 //die();
 
-for ($i = 0; $i < 2; $i++) {
+for ($i = 0; $i < 10; $i++) {
     try {
         //$idCard = $obj->createCard();
         $idCard = Card::createCard();

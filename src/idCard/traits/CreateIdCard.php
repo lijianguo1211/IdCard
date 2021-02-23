@@ -24,7 +24,7 @@ trait CreateIdCard
     public function createCard(int $number = 18, ?int $sex = null)
     {
         $address = function ($year) {
-            $data = $this->initConfig($year);
+            $this->initConfig($year);
 
             if (json_last_error()) {
                 $resData = include dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'config/config.php';
@@ -35,7 +35,7 @@ trait CreateIdCard
                 return $resData[array_rand($resData)];
             }
 
-            return array_rand($data);
+            return array_rand($this->cardData);
         };
 
         $year = function ($number) {

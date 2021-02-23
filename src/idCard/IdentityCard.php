@@ -34,14 +34,14 @@ class IdentityCard extends AbstractIdCard implements InterfaceIdCard
      * @Notes: 得到地址信息
      *
      * @param string|null $idCard
-     * @param bool $select
-     * @return string
+     * @param bool $type//true 返回字符串，false 返回数组
+     * @return string|array|null
      * @throws ValidateExceptions
      * @auther: Jay
      * @Date: 2021/2/19 0019
      * @Time: 16:55
      */
-    public function getAddress(?string $idCard = null, bool $select = true):string
+    public function getAddress(?string $idCard = null, bool $type = true)
     {
         $this->validateIdCard($idCard);
 
@@ -49,32 +49,35 @@ class IdentityCard extends AbstractIdCard implements InterfaceIdCard
         $city = substr($this->code, 0, 4) . '00';
         $area = $this->code;
 
-        $data = $this->initConfig((int)$this->year);
+        $nowYear = (int)date("Y") - 1;
 
-        $count = 5;
-        $year = 0;
+        $this->initConfig($nowYear);
+
+        $diffBasePath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'diff' . DIRECTORY_SEPARATOR;
+
+        $isNow = true;
         $provinceStr = $cityStr = $areaStr = null;
-        while ($count > 0 && $year !== null) {
-            $year = $this->year;
+        while ($nowYear > self::FIRST_YEAR) {
             try {
-                $provinceStr = $data[$province]['code_name'];
-                $cityStr = $data[$city]['code_name'];
-                $areaStr = $data[$area]['code_name'];
-                $year = null;
-                break;
+                if ($isNow) {
+                    $provinceStr = $this->cardData[$province]['code_name'];
+                    if (!isset(self::MUNICIPALITY[$province])) {
+                        $cityStr = $this->cardData[$city]['code_name'];
+                    }
+                    $areaStr = $this->cardData[$area]['code_name'];
+                    break;
+                }
+                throw new \Exception("循环找数据");
             } catch (\Exception $e) {
-                if ($this->year < 1980) {
-                    $year++;
+                $tmpData = json_decode(file_get_contents($diffBasePath . $nowYear . '.json'), true);
+                $isNow = false;
+                $nowYear--;
+                if (isset($tmpData['delete'][$this->code])) {
+                    $isNow = true;
+                    $this->initConfig($nowYear);
                 }
-
-                if ($this->year === (int)date("Y") - 1) {
-                    $year--;
-                }
-                $data = $this->initConfig($year);
             }
-            $count--;
         }
-
         $address = '';
 
         if ($provinceStr) {
@@ -89,7 +92,15 @@ class IdentityCard extends AbstractIdCard implements InterfaceIdCard
             $address .= $areaStr;
         }
 
-        return $address;
+        if ($type) {
+            return $address;
+        }
+
+        return [
+            'province' => $provinceStr,
+            'city' => $cityStr,
+            'area' => $areaStr,
+        ];
     }
 
     /**

@@ -72,21 +72,52 @@ $db = MyDb::getInstance('address.db');
 //fclose($resource);
 
 
-for ($i = 1980; $i < 2021; $i++) {
-    $dataJson = [];
-    $sql = sprintf("select * from `address` where `year` = '%s'", $i);
-    $res = $db->query($sql);
-    while($data = $res->fetchArray(SQLITE3_ASSOC)) {
-
-        $dataJson[$data['code']] = [
-            'code' => $data['code'],
-            'code_name' => $data['code_name'],
-        ];
-    }
-    $filePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $i . DIRECTORY_SEPARATOR . 'config.json';
-
-    file_put_contents($filePath, json_encode($dataJson, JSON_UNESCAPED_UNICODE));
-    unset($dataJson, $data);
-}
+//for ($i = 1980; $i < 2021; $i++) {
+//    $dataJson = [];
+//    $sql = sprintf("select * from `address` where `year` = '%s'", $i);
+//    $res = $db->query($sql);
+//    while($data = $res->fetchArray(SQLITE3_ASSOC)) {
+//
+//        $dataJson[$data['code']] = [
+//            'code' => $data['code'],
+//            'code_name' => $data['code_name'],
+//        ];
+//    }
+//    $filePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . $i . DIRECTORY_SEPARATOR . 'config.json';
+//
+//    file_put_contents($filePath, json_encode($dataJson, JSON_UNESCAPED_UNICODE));
+//    unset($dataJson, $data);
+//}
 
 $db->close();
+
+function download(string $url, string $filename = '')
+{
+    $contents = file_get_contents($url);
+    $contents = str_replace(' ', '', $contents);
+    preg_match_all('/\<tr.*?\>(.*?)\<\/tr\>/is', $contents, $matches);
+    $data = [];
+
+    foreach($matches[1] as $item) {
+        $isMatch = preg_match('/\<td.*?\>(\w+)\<\/td\>.*?\<td.*?\>(.*?)\<\/td\>.*?/is', $item, $match);
+        if ($isMatch) {
+            print_r($match);
+            preg_match_all('/[\x{4e00}-\x{9fff}]+/u', $match[2], $matches);
+            $data[$match[1]] = join('', $matches[0]);
+        }
+    }
+
+    //file_put_contents($filename, json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+}
+
+
+//download('http://www.mca.gov.cn/article/sj/xzqh/2020/2020/202003301019.html');
+
+include 'Download.php';
+//
+$download = new Download(false);
+//
+////$download->download();
+//$download->diffCode();
+
+$download->copy();

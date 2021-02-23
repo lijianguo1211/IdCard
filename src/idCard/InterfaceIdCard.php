@@ -15,7 +15,17 @@ interface InterfaceIdCard
 
     public function getLength(?string $idCard = null):int;
 
-    public function getAddress(?string $idCard = null, bool $select = true):string;
+    /**
+     * @Notes:
+     *
+     * @param string|null $idCard
+     * @param bool $type
+     * @return string|null|array
+     * @auther: Jay
+     * @Date: 2021/2/23 0023
+     * @Time: 18:10
+     */
+    public function getAddress(?string $idCard = null, bool $type = true);
 
     public function getBirthDate(?string $idCard = null, bool $type = true):string;
 

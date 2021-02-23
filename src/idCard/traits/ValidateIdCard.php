@@ -132,9 +132,10 @@ trait ValidateIdCard
             $args = self::ARGS[$mod];
 
             $argsTemp = strtoupper(substr($idCard, -1));
+
             $res = $argsTemp === 'X' ? $argsTemp : (int)$argsTemp;
             if ($args !== $res) {
-                throw new ValidateExceptions(sprintf("身份证校验码戳错，不在GB11643-1999规定范围内, 当前的校验码应该是 %d, 但当前身份证的校验码是：%s", $args, $res), 4001008);
+                throw new ValidateExceptions(sprintf("身份证校验码戳错，不在GB11643-1999规定范围内, 当前的校验码应该是 %s, 但当前身份证的校验码是：%s", $args, $res), 4001008);
             }
 
         } else {
